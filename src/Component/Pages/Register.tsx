@@ -2,7 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React,{useState} from "react";
 import {useForm} from "react-hook-form"
 import *as yup from "yup"
-
+import { RegisterUser } from "../Utlis/ApiCalls"
 const ValidationSchema = yup.object().shape({
     fullName: yup.string().required("fullName is required"),
     email: yup.string().email().required("email is required"),
@@ -19,14 +19,27 @@ const Register: React.FC = () => {
         register,
         handleSubmit,
         formState: {errors},
-        reset,
+        // reset,
     } = useForm<FormData>({
         resolver: yupResolver(ValidationSchema),
     });
 
     const  createUser = handleSubmit(async(data:FormData)=>{
-        console.log(data);
-         reset()
+        const  {fullName, email, password, profileImage}:any = data
+         console.log(data);
+         try{
+            const response = await RegisterUser ({
+                fullName,
+                email,
+                password,
+                profileImage: profileImage[0]
+            })
+            console.log(response);
+            return response;
+         }catch(err) {
+            return err;
+         }
+        //  reset()
     })
 
     const [previewImageUrl, setPreviewImageUrl] = useState<string | undefined >(undefined)
@@ -45,7 +58,7 @@ const Register: React.FC = () => {
         <img
         src={previewImageUrl}
         className="h-[70px] w-[70px] rounded-[50%] bg-salte-300 mb-5" />
-        <div className=" flex-col hidden">
+        <div className=" flex-col ">
           <span>Profile Image</span>
           <input
           {...register("profileImage")}
@@ -58,7 +71,7 @@ const Register: React.FC = () => {
         </div>
         <br />
         <br />
-        <label htmlFor="pix" className="p-[10px] rounded-md bg-blue-600">Upload Image</label>
+        {/* <label htmlFor="pix" className="p-[10px] rounded-md bg-blue-600">Upload Image</label> */}
         <p className="text-red-500">{errors?.profileImage?.message}</p>
          <div className="flex flex-col"> 
             <span>FullName</span>
@@ -107,3 +120,5 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
+
